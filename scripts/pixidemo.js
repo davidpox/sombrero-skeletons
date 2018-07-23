@@ -9,10 +9,10 @@ let Application = PIXI.Application,
     Sprite = PIXI.Sprite;
 
 // Global Variables
-let app, mainatlas, snowBlock, character, healthBar, coin_anim, state, txtScore, txtHighScore;
+let app, mainatlas, character, healthBar, coin_anim, state, txtScore, txtHighScore;
 let character_anim = [], enemy_anim = [];    // Character Animations 0 = left, 1 = right, 2 = up, 3 = down
 let enemyArray = [], coinArray = [];
-let score = 0, healthDisplayCounter = 0, timer = 0;
+let score = 0, healthDisplayCounter = 0;
 let menuScene, gameScene, endScene;
 let dootSound;
 
@@ -41,8 +41,6 @@ function init() {
         transparent: false,
         resolution: 1
     });
-
-    app.ticker.add(gameLoop, this);         // Adding a ticker object to create a timer;
 
     document.getElementById("game").appendChild(app.view);  // Adding the stage to the HTML div
 
@@ -115,10 +113,11 @@ function setup() {
         t.scale.set(1.4);
         t.position.set(randomInt(48, background.width - 48 - t.width), randomInt(48, background.height - 48 - t.height));
         t.animationSpeed = 0.2;
+        t.lastAttack = Date.now();
         t.vx = randomFloat(-1, 1);
         t.vy = randomFloat(-1, 1);
         t.attackDamage = randomInt(1, 10);
-        t.attackCooldown = 0;
+        t.attackCooldown = 300;
         t.play();
         enemyArray.push(t);
         gameScene.addChild(t);
@@ -309,16 +308,6 @@ function playGame(delta) {
 
     containEntity(character, 48, WIDTH - 48, 816, 48) // Make sure that the player character does not go out of bounds 
     
-    timer += app.ticker.deltaTime;      // Increase the timer by dt
-
-    if (timer >= 1) {   // if the timer has surpassed 1, take one away from the elements cooldown. 
-        timer = 0;
-        enemyArray.forEach(element => {
-            element.attackCooldown -= 1;
-            if (element.attackCooldown <= 0) element.attackCooldown = 0;
-        });
-    }
-
     enemyArray.forEach(element => {
         if(containEntity(element, 48, WIDTH - 48, HEIGHT - 84, 48) != "none") { // If the enemy hit a collision wall.
             element.vx = randomFloat(-1, 1);                // Give the enemy a random direction & power.
@@ -331,15 +320,15 @@ function playGame(delta) {
 
             element.play();
         }
-        if(element.attackCooldown <= 0) {                   // If the enemy can attack
+        if(Date.now() - element.lastAttack > 3000) {                   // If 3000ms (3s) have passed since last attack
             if(checkCollision(character, element)) {        // Check collision with the player
+                element.lastAttack = Date.now();
                 character.health -= element.attackDamage;   // Damage the player & play a sound
                 dootSound.play();
                 if (character.health <= 0) { endGame(); }   // If the player has no health, end the game.
 
                 healthDisplayCounter.text = character.health + " HP";   // Update the text fields, health rectangle & reset the cooldown.
                 healthBar.width = character.health * 2;
-                element.attackCooldown = 300;
             }
         }
     });
