@@ -139,7 +139,7 @@ function createControls() {
     left.press = () => {
         character.textures = character_anim[0].textures;
         character.play();
-        character.vx = -2;
+        character.vx = -4;
     }
     left.release = () => {
         if(!right.isDown) character.vx = 0;   // If the user is not going right & let go of left, stop the character
@@ -147,7 +147,7 @@ function createControls() {
     right.press = () => {
         character.textures = character_anim[1].textures;
         character.play();
-        character.vx = 2;
+        character.vx = 4;
     }
     right.release = () => {
         if(!left.isDown) character.vx = 0;    // If the user is not going left & let go of right, stop the character
@@ -155,7 +155,7 @@ function createControls() {
     up.press = () => {
         character.textures = character_anim[2].textures;
         character.play();
-        character.vy = -2;
+        character.vy = -4;
     }
     up.release = () => {
         if(!down.isDown) character.vy = 0;    // If the user is not going down & let go of up, stop the character
@@ -163,7 +163,7 @@ function createControls() {
     down.press = () => {
         character.textures = character_anim[3].textures;
         character.play();
-        character.vy = 2;
+        character.vy = 4;
     }
     down.release = () => {
         if(!up.isDown) character.vy = 0;      // If the user is not going up & let go of down, stop the character
@@ -310,8 +310,8 @@ function playGame(delta) {
     
     enemyArray.forEach(element => {
         if(containEntity(element, 48, WIDTH - 48, HEIGHT - 84, 48) != "none") { // If the enemy hit a collision wall.
-            element.vx = randomFloat(-1, 1);                // Give the enemy a random direction & power.
-            element.vy = randomFloat(-1, 1);
+            element.vx = randomFloat(-1, 1) * 2;                // Give the enemy a random direction & power.
+            element.vy = randomFloat(-1, 1) * 2;
 
             if ((element.vx > element.vy) && element.vx < 0) element.textures = enemy_anim[0].textures;         // Determine the direction the enemy is moving and set their animation to that direction
             else if ((element.vx > element.vy) && element.vx > 0) element.textures = enemy_anim[1].textures;
